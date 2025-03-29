@@ -96,9 +96,17 @@ while not q.empty():
                     q2.put(neighbour)
                     parse_tree_node.satisfying_states.add(neighbour)
 
+    elif parse_tree_node.val == 'AND':
+        for state in parse_tree_node.right.satisfying_states:
+            if state in parse_tree_node.left.satisfying_states:
+                parse_tree_node.satisfying_states.add(state)
+
+
     if parse_tree_node.parent and parse_tree_node.parent.visited == False:
             q.put(parse_tree_node.parent)
             parse_tree_node.parent.visited = True
+
+
 
 for h in form.satisfying_states:
     print(h)
