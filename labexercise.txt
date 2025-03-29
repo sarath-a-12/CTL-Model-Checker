@@ -1,0 +1,33 @@
+Implement the standard algorithm for CTL model checking on Kripke structures. 
+You may use any programming language(s) that you prefer, without compromising the efficiency. 
+
+
+Input : 
+ A kripke structure K and a CTL formula $\phi$.  
+ 
+For simplicity of parsing, you may assume that the formula is fully parenthesized.
+ Assume that the set of atomic propositions are a, b, c, ... 
+ The formula $\phi$ may contain operators or (|), and (&), not (~), implies (->), AG, AF, AU, AX, EG, EF, EU, EX.
+ Use the symbol T for top and F for bottom. 
+ You may consider K as a directed graph (with states as vertices and transitions as edges) with a labelling function that associates 
+ a subset of atomic propositions with each state. 
+
+ 
+ 
+Step 1 : Convert the formula $\phi$ into an equivalent formula $\psi$ in which the temporal CTL operators used are only EX, EG and EU. 
+        a) Output the resultant formula $\psi$ (mention which is the minimal set that you are choosing). 
+        b) Output the number of nodes (including leaves) in the parse tree of $\psi$.
+        c) In the bottom-up order, for each node of the parse-tree, output the node-id and subformula corresponding to that node. 
+        d) Store the parse tree of $\psi$ for later processing. 
+         
+Step 2 : Implement the bottom-up CTL model checking algorithm that outputs the subset of states of K that satisfies $\psi$. 
+Choose an appropriate data structure so that looking up the set of states that satisfy the formula(s) corresponding to the immediate subtrees of
+a node in the parse tree can be quickly done and the additional computation at a node is also efficiently done.
+Make sure that the time spent per node of the parse tree is at most quadratic (preferably linear) in the size of K. 
+After processing each parse-tree node, output its node-id and the subset of states of K that satisfy the subformula corresponding to that node. 
+ 
+       
+         
+
+
+
