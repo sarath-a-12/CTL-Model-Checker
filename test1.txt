@@ -1,0 +1,17 @@
+3
+1
+2
+EOF
+p
+q
+EOF
+0
+2
+EOF
+q
+r
+EOF
+2
+EOF
+r
+EOF

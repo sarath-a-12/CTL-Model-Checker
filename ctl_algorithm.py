@@ -39,6 +39,11 @@ class Graph:
                 self.dfs(neighbour, stack)
         stack.append(v.v)
 
+    def clear_visited(self):
+        for ver in self.graph.values():
+            ver.visited = False
+
+
 
 
 
@@ -52,7 +57,7 @@ label_strings = {}
 for key in kripke_structure.graph:
     state = kripke_structure.graph[key]
     label_strings[state.v] = set(['T'])
-    print(f"Enter the transitions (1 - {no_of_states}) for state {i+1} and press Ctrl-D")
+    print(f"Enter the transitions (0 - {no_of_states - 1}) for state {i} and press Ctrl-D")
     try:
         while True:
             transition = (input())
@@ -74,7 +79,7 @@ for key in kripke_structure.graph:
     except EOFError:
         pass
 
-
+# print(label_strings)
 # for i in states:
 #     print(i.adj_list)
 # print("============")
@@ -84,10 +89,15 @@ for key in kripke_structure.graph:
 # p1 = "EX(((p) & (~(q))) | ((q) & (~(p))))"
 # p1 = "~ ((p) | (q))"
 # p1 = "E [(T) U (q)]"
-p1 = "EG ((p) & (q))"
-# p3 = "EF p"
+# p1 = "EG ((p) & (q))"
+# p1 = "A [(p) U (r)]"
+# p1 = "AX ( (q) & (r))"
+# p1 = " A[ (p) U (q)]"
+p1 = "AG (AF (p))"
+# p1 = "E [ (~(q)) U (~ ((p) | (q)))]"
 
 form = ctlparser.parse_ctl_formula(p1)
+print(form.subformula)
 parse_tree_nodes = ctlparser.find_leaf_nodes(form, 0)
 parse_tree_nodes.reverse()
 # print(parse_tree_nodes)
@@ -107,8 +117,12 @@ parse_tree_nodes.reverse()
 #     # print(n.val)
 for level in parse_tree_nodes:
     for parse_tree_node in level:
+        kripke_structure.clear_visited()
         
         if parse_tree_node.child == None and parse_tree_node.left == None and parse_tree_node.right == None: #leaf node
+            if parse_tree_node.val == "TRUE":
+                for state in kripke_structure.graph.values():
+                    parse_tree_node.satisfying_states.add(state.v)
             for key in kripke_structure.graph: #find all states which satisfy the atomic proposition
                 state = kripke_structure.graph[key]
                 if state.v in label_strings and parse_tree_node.val in label_strings[state.v]:
@@ -116,6 +130,7 @@ for level in parse_tree_nodes:
                     parse_tree_node.satisfying_states.add(state.v)
 
         elif parse_tree_node.val == 'EX':
+            # print(parse_tree_node.child.satisfying_states)
             q2 = queue.Queue()
             reverse_kripke_structure = kripke_structure.reverse()
             for st in parse_tree_node.child.satisfying_states:
@@ -128,6 +143,7 @@ for level in parse_tree_nodes:
                         parse_tree_node.satisfying_states.add(neighbour)
 
         elif parse_tree_node.val == 'EU':
+            # print(parse_tree_node.right.satisfying_states)
             q2 = queue.Queue()
             reverse_kripke_structure = kripke_structure.reverse()
             for st in parse_tree_node.right.satisfying_states:
@@ -142,8 +158,11 @@ for level in parse_tree_nodes:
                         reverse_kripke_structure.graph[neighbour].visited = True
                         q2.put(neighbour)
                         parse_tree_node.satisfying_states.add(neighbour)
+            
+            # print(parse_tree_node.satisfying_states)
 
         elif parse_tree_node.val == 'EG':
+            # print("Something" ,parse_tree_node.child.satisfying_states)
             #creation of restricted graph
             restricted_graph = Graph()
             states_satisfying_psi = 0
@@ -170,9 +189,8 @@ for level in parse_tree_nodes:
             #             reverse_restricted_graph[neighbour].adj_list.add(state.v)
             reverse_restricted_graph = restricted_graph.reverse()
 
-            # for i in reverse_restricted_graph:
-            #     if i:
-            #         print(f"{i.v} - [{i.adj_list}]")
+            # for i in reverse_restricted_graph.graph:
+            #         print(f"{i} - [{restricted_graph.graph[i].adj_list}]")
 
             #dfs 1 for finding scc's
             # def dfs(node, stack, graph):
@@ -214,6 +232,7 @@ for level in parse_tree_nodes:
                         parse_tree_node.satisfying_states.add(ver)
                         good_sccs.append(component)
 
+            # print(good_sccs)
             # for component in sccs:
             #     if len(component) == 1 and component[0] not in restricted_graph.graph[component[0]].adj_list:
             comp_number = -1
@@ -244,23 +263,13 @@ for level in parse_tree_nodes:
                     for vertices in sccs[visitable_vertex]:
                         parse_tree_node.satisfying_states.add(vertices)
 
-
-
-
-
-
-
-
-
-
-
-
+            # print(parse_tree_node.satisfying_states)
         elif parse_tree_node.val == 'AND':
             # for state in parse_tree_node.right.satisfying_states:
             #     if state in parse_tree_node.left.satisfying_states:
             #         parse_tree_node.satisfying_states.add(state)
             # print(parse_tree_node.right.satisfying_states)
-            for state in range(1, no_of_states + 1):
+            for state in range(no_of_states):
                 if state in parse_tree_node.left.satisfying_states and state in parse_tree_node.right.satisfying_states:
                     parse_tree_node.satisfying_states.add(state)
 
@@ -272,12 +281,12 @@ for level in parse_tree_nodes:
                 parse_tree_node.satisfying_states.add(state)
 
         elif parse_tree_node.val == 'NOT':
-            for state in range(1, no_of_states + 1):
+            for state in range(no_of_states):
                 if not (state in parse_tree_node.child.satisfying_states):
                     parse_tree_node.satisfying_states.add(state)
 
         elif parse_tree_node.val == 'IMPLIES':
-            for state in range(1, no_of_states + 1):
+            for state in range(no_of_states):
                 if not (state in parse_tree_node.left.satisfying_states):
                     parse_tree_node.satisfying_states.add(state)
                 if state in parse_tree_node.right.satisfying_states:

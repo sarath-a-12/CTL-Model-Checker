@@ -16,7 +16,7 @@ class ParseTreeNode():
         self.subformula = ""
         self.depth = -1
         self.visited = False
-        self.satisfying_states = set([])
+        self.satisfying_states = set([]) 
 
 class CTLParser(Parser):
     tokens = CTLLexer.tokens
@@ -51,8 +51,9 @@ class CTLParser(Parser):
         phi1_copy = copy.deepcopy(phi1)
         phi2 = t[7]
         phi2_copy = copy.deepcopy(phi2)
-        n1 = ParseTreeNode(val = 'NOT', child = phi1)
-        n1.subformula = f"~ ( {phi1.subformula} )"
+        phi2_copy2 = copy.deepcopy(phi2)
+        n1 = ParseTreeNode(val = 'NOT', child = phi2_copy2)
+        n1.subformula = f"~ ( {phi2_copy2.subformula} )"
         phi1.parent = n1
         n2 = ParseTreeNode(val = 'NOT', child = phi2)
         n2.subformula = f"~ ( {phi2.subformula} )"
