@@ -14,6 +14,7 @@ class ParseTreeNode():
         self.val = val
         self.number_of_nodes = 0 # number of nodes for the subtree from the current node
         self.subformula = ""
+        self.depth = -1
         self.visited = False
         self.satisfying_states = set([])
 
@@ -176,17 +177,22 @@ class CTLParser(Parser):
         return x
 
 
+depths = []
 leaf_nodes = []
-def find_leaf_nodes(node):
+def find_leaf_nodes(node, depth):
+    if depth < len(depths):
+        depths[depth].append(node)
+    else:
+        depths.append([node])
     if not (node.left or node.right or node.child):
-        leaf_nodes.append(node)
+        return
     if node.left:
-        find_leaf_nodes(node.left)
+        find_leaf_nodes(node.left, depth + 1)
     if node.right:
-        find_leaf_nodes(node.right)
+        find_leaf_nodes(node.right, depth + 1)
     if node.child:
-        find_leaf_nodes(node.child)
-    return leaf_nodes
+        find_leaf_nodes(node.child, depth + 1)
+    return depths
 
 
 def bottom_up_traversal(leaf_nodes): #do a bottom up traversal starting from leaf nodes
@@ -212,6 +218,7 @@ def bottom_up_traversal(leaf_nodes): #do a bottom up traversal starting from lea
                 q.put(n.parent)
                 n.parent.visited = True
 
+    # print(levels)
     return levels
 
 
