@@ -54,8 +54,7 @@ for i in range(no_of_states):
     # print(kripke_structure.graph)
 # reverse_graph = kripke_structure.reverse()
 label_strings = {}
-for key in kripke_structure.graph:
-    state = kripke_structure.graph[key]
+for state in kripke_structure.graph.values():
     label_strings[state.v] = set(['T'])
     print(f"Enter the transitions (0 - {no_of_states - 1}) for state {i} and press Ctrl-D")
     try:
@@ -93,10 +92,14 @@ for key in kripke_structure.graph:
 # p1 = "A [(p) U (r)]"
 # p1 = "AX ( (q) & (r))"
 # p1 = " A[ (p) U (q)]"
-p1 = "AG (AF (p))"
+# p1 = "AG (F)"
+p1 = "EG (p)"
+# p1 = "AG (AF (p))"
+# p1 = "p"
 # p1 = "E [ (~(q)) U (~ ((p) | (q)))]"
 
 form = ctlparser.parse_ctl_formula(p1)
+print("\n\n===================================\nEquivalent formula using minimal set of operators is : ", end = ' ')
 print(form.subformula)
 parse_tree_nodes = ctlparser.find_leaf_nodes(form, 0)
 parse_tree_nodes.reverse()
@@ -123,8 +126,7 @@ for level in parse_tree_nodes:
             if parse_tree_node.val == "TRUE":
                 for state in kripke_structure.graph.values():
                     parse_tree_node.satisfying_states.add(state.v)
-            for key in kripke_structure.graph: #find all states which satisfy the atomic proposition
-                state = kripke_structure.graph[key]
+            for state in kripke_structure.graph.values(): #find all states which satisfy the atomic proposition
                 if state.v in label_strings and parse_tree_node.val in label_strings[state.v]:
                     # print(f"{n.val} in {state.v}")
                     parse_tree_node.satisfying_states.add(state.v)
@@ -166,13 +168,11 @@ for level in parse_tree_nodes:
             #creation of restricted graph
             restricted_graph = Graph()
             states_satisfying_psi = 0
-            for key in kripke_structure.graph:
-                state = kripke_structure.graph[key]
+            for state in kripke_structure.graph.values():
                 if state.v in parse_tree_node.child.satisfying_states:
                     restricted_graph.add_vertex(state.v)
 
-            for key in restricted_graph.graph:
-                state = kripke_structure.graph[key]
+            for state in restricted_graph.graph.values():
                 for neighbour in kripke_structure.graph[state.v].adj_list:
                     if neighbour in restricted_graph.graph:
                         restricted_graph.add_edge(state.v, neighbour)
@@ -200,16 +200,14 @@ for level in parse_tree_nodes:
             #             dfs(graph[neighbour].v, stack, graph)
             #     stack.append(node)
             stack = []
-            for key in restricted_graph.graph:
-                state = restricted_graph.graph[key]
+            for state in restricted_graph.graph.values():
                 if not state.visited:
                     restricted_graph.dfs(state.v, stack)
 
             # for i in stack:
             #     print(f"{i.v} - {i.adj_list}")
-            for key in stack:
-                state = restricted_graph.graph[key]
-                state.visited = False
+            for state in stack:
+                restricted_graph.graph[state].visited = False
 
             sccs = []
             while stack:
@@ -245,8 +243,7 @@ for level in parse_tree_nodes:
             meta_graph = Graph()
             for i in range(len(sccs)):
                 meta_graph.add_vertex(i)
-            for key in restricted_graph.graph:
-                state = restricted_graph.graph[key]
+            for state in restricted_graph.graph.values():
                 for neighbour in state.adj_list:
                     if not dictionary[state.v] == dictionary[neighbour]:
                         meta_graph.add_edge(dictionary[state.v], dictionary[neighbour])
@@ -298,4 +295,8 @@ for level in parse_tree_nodes:
 #
 
 # print(form.left.right.satisfying_states)
-print(form.satisfying_states)
+
+if len(form.satisfying_states):
+    print(f"\n\n===================================\nSet of states satisfying the formula are : {form.satisfying_states}")
+else:
+    print("No states satisfy the CTL formula")

@@ -174,7 +174,13 @@ class CTLParser(Parser):
     def phi(self, t):
         x = ParseTreeNode(val = t[0])
         x.number_of_nodes = 1
-        x.subformula = f"{t[0]}"
+        var = t[0]
+        match t[0]:
+            case "T":
+                var = "TRUE"
+            case "F":
+                var = "FALSE"
+        x.subformula = var
         return x
 
 
@@ -186,7 +192,7 @@ def find_leaf_nodes(node, depth):
     else:
         depths.append([node])
     if not (node.left or node.right or node.child):
-        return
+        return depths
     if node.left:
         find_leaf_nodes(node.left, depth + 1)
     if node.right:

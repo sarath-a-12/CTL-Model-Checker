@@ -10,6 +10,8 @@ class CTLLexer(Lexer):
     # ignore_comment = r'\/\/.*'
     # ignore_newline = r'\n+'
     IMPLIES = r'->'
+    TRUE = r'T'
+    FALSE = r'F'
     # ADD = r'\+'
     # SUB = r'-'
     # MUL = r'\*'
@@ -23,15 +25,6 @@ class CTLLexer(Lexer):
     # NE = r'!='
 
     VAR = r'[a-z_][a-z0-9_]*'
-    VAR['T'] = TRUE
-    VAR['F'] = FALSE
-    # VAR['if'] = IF
-    # VAR['else'] = ELSE
-    # VAR['while'] = WHILE
-    # VAR['print'] = PRINT
-    # VAR['main'] = MAIN
-
-    # literals = {'{','}', '(',')', ';'}
 
 
 
