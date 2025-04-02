@@ -184,9 +184,7 @@ class CTLParser(Parser):
         return x
 
 
-depths = []
-leaf_nodes = []
-def find_leaf_nodes(node, depth):
+def find_leaf_nodes(node, depth, depths):
     if depth < len(depths):
         depths[depth].append(node)
     else:
@@ -194,57 +192,44 @@ def find_leaf_nodes(node, depth):
     if not (node.left or node.right or node.child):
         return depths
     if node.left:
-        find_leaf_nodes(node.left, depth + 1)
+        find_leaf_nodes(node.left, depth + 1, depths)
     if node.right:
-        find_leaf_nodes(node.right, depth + 1)
+        find_leaf_nodes(node.right, depth + 1, depths)
     if node.child:
-        find_leaf_nodes(node.child, depth + 1)
+        find_leaf_nodes(node.child, depth + 1, depths)
     return depths
 
 
-def bottom_up_traversal(leaf_nodes): #do a bottom up traversal starting from leaf nodes
-    levels = [[]]
-    q = queue.Queue()
-    ctr = 0
-    for i in leaf_nodes:
-        q.put(i)
-        i.visited = True
-    q.put(None)
-    
-    while not q.empty():
-        n = q.get()
-        if n is None:
-            levels.append([])
-            ctr += 1
-            if not q.empty():
-                q.put(None)
-            continue
-
-        levels[ctr].append(n)
-        if n.parent and n.parent.visited == False:
-                q.put(n.parent)
-                n.parent.visited = True
-
-    # print(levels)
-    return levels
+# def bottom_up_traversal(leaf_nodes): #do a bottom up traversal starting from leaf nodes
+#     levels = [[]]
+#     q = queue.Queue()
+#     ctr = 0
+#     for i in leaf_nodes:
+#         q.put(i)
+#         i.visited = True
+#     q.put(None)
+#     
+#     while not q.empty():
+#         n = q.get()
+#         if n is None:
+#             levels.append([])
+#             ctr += 1
+#             if not q.empty():
+#                 q.put(None)
+#             continue
+#
+#         levels[ctr].append(n)
+#         if n.parent and n.parent.visited == False:
+#                 q.put(n.parent)
+#                 n.parent.visited = True
+#
+#     # print(levels)
+#     return levels
 
 
 def parse_ctl_formula(data):
     lexer = CTLLexer()
     parser = CTLParser()
     final = parser.parse(lexer.tokenize(data))
-    # print(final)
-    # leaf_nodes = find_leaf_nodes(final)
-    # print(leaf_nodes)
-    # bottom_up_traversal()
-    # print(leaf_nodes)
     return final
 
-    # print()
-    # print(f"Total number of nodes = {final.number_of_nodes}")
-    # print(final.subformula)
-    # levels.reverse()
-    # for i in levels:
-    #         for j in i:
-    #             print(f"Node = {j.val} - Subformula at node = {j.subformula}")
-    # print(final.child.right.child.val)
